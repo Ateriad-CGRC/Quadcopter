@@ -166,23 +166,23 @@ void loop() {
     pid_Output_y = k_p * kalAngleY + k_d * initial_y / 10;
     xPID.Compute();
     //xPID = 
-    if (pid_Output_x >= 200) {
-        pid_Output_x = 200;
+    if (pid_Output_x >= 150) {
+        pid_Output_x = 150;
     }
-    if (pid_Output_x <= -200) {
-        pid_Output_x = -200;
+    if (pid_Output_x <= -150) {
+        pid_Output_x = -150;
 
     }
 
-    if (pid_Output_y >= 200) {
-        pid_Output_y = 200;
+    if (pid_Output_y >= 150) {
+        pid_Output_y = 150;
     }
-    if (pid_Output_y <= -200) {
-        pid_Output_y = -200;
+    if (pid_Output_y <= -150) {
+        pid_Output_y = -150;
 
     }
 
-    write_throttle(1000, 1250 + pid_Output_x, 1250 - pid_Output_x, 1000);
+    write_throttle(1250,1250,1250,1250);
     Serial.print("  pid_Output_x =  ");
     Serial.print(pid_Output_x);
 
