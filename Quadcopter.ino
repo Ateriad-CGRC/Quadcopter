@@ -15,8 +15,8 @@ int escPin3 = 10;
 int escPin4 = 11;
 int pid_Output_x;
 int pid_Output_y;
-float k_p = 7;
-float k_d = .3;
+float k_p = 19;
+float k_d = .6;
 float filter_gain = 0;
 int a = 0;
 
@@ -155,7 +155,7 @@ void loop() {
 
     initial_x = initial_x + filter_gain * (gyroX - initial_x);
 
-    initial_y = initial_y + filter_gain * (accY - initial_y);
+    initial_y = initial_y + filter_gain * (gyroY - initial_y);
     analog();
     mpu6050_readData();
     xInput = kalAngleX;
@@ -166,25 +166,27 @@ void loop() {
     pid_Output_y = k_p * kalAngleY + k_d * initial_y / 10;
     xPID.Compute();
     //xPID = 
-    if (pid_Output_x >= 150) {
-        pid_Output_x = 150;
+    if (pid_Output_x >= 300) {
+        pid_Output_x = 300;
     }
-    if (pid_Output_x <= -150) {
-        pid_Output_x = -150;
+    if (pid_Output_x <= -300) {
+        pid_Output_x = -300;
 
     }
 
-    if (pid_Output_y >= 150) {
-        pid_Output_y = 150;
+    if (pid_Output_y >= 300) {
+        pid_Output_y = 300;
     }
-    if (pid_Output_y <= -150) {
-        pid_Output_y = -150;
+    if (pid_Output_y <= -300) {
+        pid_Output_y = -300;
 
     }
-
-    write_throttle(1250,1250,1250,1250);
-    Serial.print("  pid_Output_x =  ");
-    Serial.print(pid_Output_x);
+/// write_throttle( m1- , m2 , m3 , m4 );
+    write_throttle(1300+pid_Output_x+pid_Output_y,1300-pid_Output_x+pid_Output_y,1300-pid_Output_x-pid_Output_y,1200+pid_Output_x-pid_Output_y);
+    Serial.print("  x =  ");
+    Serial.print(kalAngleY);
+    Serial.print("  y =  ");
+    Serial.print(kalAngleY);
 
     Serial.print("\r\n");
 }
