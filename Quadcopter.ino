@@ -7,6 +7,11 @@ Servo esc3;
 Servo esc4;
 double initial_x = 0;
 double initial_y = 0;
+int m1=0;
+int m2=0;
+int m3=0;
+int m4=0;
+int motor_speed=1300;
 //Esc pins
 
 int escPin1 = 8;
@@ -15,8 +20,9 @@ int escPin3 = 10;
 int escPin4 = 11;
 int pid_Output_x;
 int pid_Output_y;
-float k_p = 19;
-float k_d = .6;
+// 18 .  0.7
+float k_p = 18;
+float k_d = .8;
 float filter_gain = 0;
 int a = 0;
 
@@ -143,12 +149,12 @@ void loop() {
         initial_x = initial_x + filter_gain * (accX - initial_x);
         initial_y = initial_y + filter_gain * (accY - initial_y);
     }
-    if (abs(gyroX - initial_x) > 1000)
+    if (abs(gyroX - initial_x) > 800)
         filter_gain = 1;
     else
         filter_gain = 0.1;
 
-    if (abs(gyroX - initial_y) > 1000)
+    if (abs(gyroX - initial_y) > 800)
         filter_gain = 1;
     else
         filter_gain = 0.1;
@@ -160,7 +166,7 @@ void loop() {
     mpu6050_readData();
     xInput = kalAngleX;
     //if (kalAngleX<2 & kalAngleX>-2){
-    xSetpoint = 10;
+    xSetpoint = 0;
     //else{Setpoint =0;}
     pid_Output_x = k_p * kalAngleX + k_d * initial_x / 10;
     pid_Output_y = k_p * kalAngleY + k_d * initial_y / 10;
@@ -181,13 +187,30 @@ void loop() {
         pid_Output_y = -300;
 
     }
-/// write_throttle( m1- , m2 , m3 , m4 );
-    write_throttle(1300+pid_Output_x+pid_Output_y,1300-pid_Output_x+pid_Output_y,1300-pid_Output_x-pid_Output_y,1200+pid_Output_x-pid_Output_y);
+    m1=motor_speed+pid_Output_x+pid_Output_y;
+    m2=motor_speed-pid_Output_x+pid_Output_y;
+    m3=motor_speed-pid_Output_x-pid_Output_y+100;
+    m4=motor_speed+pid_Output_x-pid_Output_y;
+   if(pid_Output_x+pid_Output_y>400 || -pid_Output_x-pid_Output_y+100>400)
+   {
+      m1=m1-150;
+      m3=m3-150;
+   }
+   if m1>2000;
+    m1=2000;
+    write_throttle(m1,m2,m3,m4);
     Serial.print("  x =  ");
     Serial.print(kalAngleY);
     Serial.print("  y =  ");
     Serial.print(kalAngleY);
-
+    Serial.print("  m1 =  ");
+    Serial.print(m1);
+    Serial.print("  m2 =  ");
+    Serial.print(m2);
+    Serial.print("  m3 =  ");
+    Serial.print(m3);
+    Serial.print("  m4 =  ");
+    Serial.print(m4);
     Serial.print("\r\n");
 }
 
