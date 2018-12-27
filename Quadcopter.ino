@@ -21,8 +21,8 @@ int escPin4 = 11;
 int pid_Output_x;
 int pid_Output_y;
 // 18 .  0.7
-float k_p = 18;
-float k_d = .8;
+float k_p = 14;
+float k_d = .5;
 float filter_gain = 0;
 int a = 0;
 
@@ -136,18 +136,18 @@ void setup() {
 
 void loop() {
     for (a = a; a < 10000; a++) {
-        if (abs(accX - initial_x) > 2000)
+        if (abs(gyroX - initial_x) > 2000)
             filter_gain = 1;
         else
             filter_gain = 0.1;
 
-        if (abs(accX - initial_y) > 2000)
+        if (abs(gyroX - initial_y) > 2000)
             filter_gain = 1;
         else
             filter_gain = 0.1;
 
-        initial_x = initial_x + filter_gain * (accX - initial_x);
-        initial_y = initial_y + filter_gain * (accY - initial_y);
+        initial_x = initial_x + filter_gain * (gyroX - initial_x);
+        initial_y = initial_y + filter_gain * (gyroY - initial_y);
     }
     if (abs(gyroX - initial_x) > 800)
         filter_gain = 1;
@@ -196,8 +196,7 @@ void loop() {
       m1=m1-150;
       m3=m3-150;
    }
-   if m1>2000;
-    m1=2000;
+
     write_throttle(m1,m2,m3,m4);
     Serial.print("  x =  ");
     Serial.print(kalAngleY);
