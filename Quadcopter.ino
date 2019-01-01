@@ -1,6 +1,13 @@
 #include <Servo.h>
+//////////////controler////////////////////
+#include <SoftwareSerial.h>
 
-//Create the 4 esc objects
+SoftwareSerial ser(0, 1);
+
+String temp="";
+
+String getValue(String data, char separator, int index);
+//Create the 4 esc objects//////////////////////////
 Servo esc1;
 Servo esc2;
 Servo esc3;
@@ -11,7 +18,7 @@ int m1=0;
 int m2=0;
 int m3=0;
 int m4=0;
-int motor_speed=1300;
+int motor_speed=0;
 //Esc pins
 
 int escPin1 = 8;
@@ -74,12 +81,13 @@ void setup() {
     write_throttle(minPulseRate, minPulseRate, minPulseRate, minPulseRate);
 
     Serial.begin(57600);
+    ser.begin(9600);
     Serial.println("to Run the program enter R");
     Serial.println("to calibrate escs enter C");
     while (Serial.available() < 1);
 
-    if (Serial.read() == 'C') { calibrate_escs(); }
-    if (Serial.read() == 'R') {}
+//    if (Serial.read() == 'C') { calibrate_escs(); }
+//    if (Serial.read() == 'R') {}
 //////////////(PID)////////////////////////////////////////////////////////////////////////
     xSetpoint = 0;
 
@@ -135,6 +143,53 @@ void setup() {
 }
 
 void loop() {
+
+  //////////contoroler//////////////////////////////////////////////
+while(ser.available()){
+  char character = ser.read();
+  temp.concat(character);
+  if(character=='\n')
+  {
+    Serial.print("Received : ");
+    String controller = getValue(temp,':',0);
+    if(controller=="A")
+    {
+      String index = getValue(temp,':',1);
+      if (index=="2")
+      {
+      String value = getValue(temp,':',2); 
+      motor_speed=map(value,-1,1,1000,2000);
+      }
+      Serial.println(value);
+    }
+    if(controller=="B")
+    {
+      String value = getValue(temp,':',1); 
+      if(value==11){
+        // start motor
+      }
+      Serial.println(value);
+    }
+    temp = "";
+  }
+}
+}
+
+String getValue(String data, char separator, int index)
+{
+    int found = 0;
+    int strIndex[] = { 0, -1 };
+    int maxIndex = data.length() - 1;
+
+    for (int i = 0; i <= maxIndex && found <= index; i++) {
+        if (data.charAt(i) == separator || i == maxIndex) {
+            found++;
+            strIndex[0] = strIndex[1] + 1;
+            strIndex[1] = (i == maxIndex) ? i+1 : i;
+        }
+    }
+    return found > index ? data.substring(strIndex[0], strIndex[1]) : "";
+  ////////////////////////////////////////////////////////
     for (a = a; a < 10000; a++) {
         if (abs(gyroX - initial_x) > 2000)
             filter_gain = 1;
@@ -198,9 +253,9 @@ void loop() {
    }
 
     write_throttle(m1,m2,m3,m4);
-    Serial.print("  x =  ");
-    Serial.print(kalAngleY);
-    Serial.print("  y =  ");
+    Serial.print("  motor_speedx =  ");
+    Serial.print(motor_speed);
+ /*   Serial.print("  y =  ");
     Serial.print(kalAngleY);
     Serial.print("  m1 =  ");
     Serial.print(m1);
@@ -210,7 +265,7 @@ void loop() {
     Serial.print(m3);
     Serial.print("  m4 =  ");
     Serial.print(m4);
-    Serial.print("\r\n");
+    Serial.print("\r\n");*/
 }
 
 void arm_escs() {}
